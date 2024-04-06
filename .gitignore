@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+.git/
+downloaded_files/
+viewed.txt
+db.sqlite
+result/
