@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # Поиск директории parser_avito и её сохранение в переменную directory
-directory=$(find ~/ -type d -name "parser_avito" | head -n 1 | tr -d '\n')
+directory=$(find ~/ -type d -name "build_parse" | head -n 1 | tr -d '\n')
+
+n=$(ls $directory/config/ | wc -l)
 
 # Проверяем, что директория найдена
 if [ -n "$directory" ]; then
     while true; do
-        for i in $(seq 1 2); do
+        for i in $(seq 1 $n); do
 	    echo $i
             # Запуск python скрипта в фоне и сохранение его PID
             python3 "$directory/parser_cls.py" &
