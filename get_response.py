@@ -14,10 +14,9 @@ def check_and_delete_urls():
 
     conn = sqlite3.connect('db.sqlite')
     cursor = conn.cursor()
-
     cursor.execute("SELECT id, url FROM Avito")
     urls = cursor.fetchall()
-
+    conn.close()
     for uid, url in urls:
         print(url)
         driver.get(url)
@@ -26,7 +25,6 @@ def check_and_delete_urls():
             cursor.execute("DELETE FROM Avito WHERE id=?", (uid,))
             conn.commit()
         time.sleep(30)
-    conn.close()
     driver.close()
 
 check_and_delete_urls()
