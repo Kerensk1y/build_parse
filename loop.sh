@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Поиск директории parser_avito и её сохранение в переменную directory
 directory=$(find ~/ -type d -name "build_parse" | head -n 1 | tr -d '\n')
 
 n=$(ls $directory/config/ | wc -l)

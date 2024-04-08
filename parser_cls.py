@@ -296,24 +296,12 @@ if __name__ == '__main__':
             line_url = file.readlines()[1]
             regex = r"http.+"
             url = re.search(regex, line_url)[0]
-    chat_id = config["Avito"]["CHAT_ID"]
-    token = config["Avito"]["TG_TOKEN"]
     num_ads = config["Avito"]["NUM_ADS"]
     freq = config["Avito"]["FREQ"]
     keys = config["Avito"]["KEYS"]
     max_price = config["Avito"].get("MAX_PRICE", "0") or "0"
     min_price = config["Avito"].get("MIN_PRICE", "0") or "0"
     geo = config["Avito"].get("GEO", "") or ""
-
-    if token and chat_id:
-        params = {
-            'token': token,
-            'chat_id': chat_id
-        }
-        tg_handler = NotificationHandler("telegram", defaults=params)
-
-        """Все логи уровня SUCCESS и выше отсылаются в телегу"""
-        logger.add(tg_handler, level="SUCCESS", format="{message}")
 
     while True:
         try:

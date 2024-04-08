@@ -1,7 +1,5 @@
 [Avito]
 url = https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki-ASgBAgICAkSYC8SfAZoL3J8B?bt=1&q=%%D1%%83%%D1%%81%%D0%%BB%%D1%%83%%D0%%B3%%D0%%B8
-chat_id = @ParsingTestChannel
-tg_token = 7001654449:AAFMPCM2AMiXOMWIcuFXLSCbSpUy7gfmhfY
 num_ads = 3
 freq = 1
 keys = манипулятор

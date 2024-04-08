@@ -42,3 +42,4 @@ def insert(data):
     finally:
         cur.close()
         con.close()
+        
