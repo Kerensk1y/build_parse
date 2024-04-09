@@ -1,6 +1,6 @@
 import telebot
 from telebot import types
-import os
+import re
 
 # Создаем бота
 bot = telebot.TeleBot("7001654449:AAFMPCM2AMiXOMWIcuFXLSCbSpUy7gfmhfY")
@@ -27,23 +27,29 @@ def new_request(call):
 # Добавить проверку регексом
 def get_url(message):
     global url  # Определяем переменные как глобальные
-    url = message.text
-    bot.send_message(message.chat.id, "Что именно ищем (ключевое слово):")
-    bot.register_next_step_handler(message, get_keys)
+    pattern = r"(https?://)([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+"
+    if re.match(pattern, message.text):
+        url = message.text
+        bot.send_message(message.chat.id, "Что именно ищем (одно ключевое слово):")
+        bot.register_next_step_handler(message, get_keys)
+    else:
+        bot.send_message(message.chat.id, "Ссылка введена некорректно")
+
+    
 
 def get_keys(message):
     global keys
     keys = message.text
-    bot.send_message(message.chat.id, "Где ищем? - Населенный пункт для поиска. Если несколько, то через запятую:")
+    keys = keys.replace(" ", "_")
+    bot.send_message(message.chat.id, "Где ищем? - Один населенный пункт для поиска:")
     bot.register_next_step_handler(message, get_geo)
-
-config_dir = os.path.join(os.getcwd(), "config")
-count = len(os.listdir(config_dir)) + 1
 
 def get_geo(message):
     global geo
     geo = message.text
-    with open(f"/config/{count}.txt", "w", encoding='utf-8') as f:
+    geo = geo.replace(" ", "_")
+    name = f"{keys}_{geo}"
+    with open(f"/config/{name}.txt", "w", encoding='utf-8') as f:
         f.write("[Avito]\n")
         f.write(f"url = {url}\n")
         f.write("num_ads = 3\n")
