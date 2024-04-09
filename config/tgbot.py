@@ -2,7 +2,6 @@ import telebot
 from telebot import types
 import re
 
-# Создаем бота
 bot = telebot.TeleBot("7001654449:AAFMPCM2AMiXOMWIcuFXLSCbSpUy7gfmhfY")
 print('in progress...')
 
@@ -24,7 +23,6 @@ def new_request(call):
     bot.send_message(call.message.chat.id, "Введите URL (страницу с авито)")
     bot.register_next_step_handler(call.message, get_url)
 
-# Добавить проверку регексом
 def get_url(message):
     global url  # Определяем переменные как глобальные
     pattern = r"(https?://)([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+"
@@ -33,9 +31,7 @@ def get_url(message):
         bot.send_message(message.chat.id, "Что именно ищем (одно ключевое слово):")
         bot.register_next_step_handler(message, get_keys)
     else:
-        bot.send_message(message.chat.id, "Ссылка введена некорректно")
-
-    
+        bot.send_message(message.chat.id, "Ссылка введена некорректно, попробуйте ещё раз:")
 
 def get_keys(message):
     global keys
@@ -49,7 +45,7 @@ def get_geo(message):
     geo = message.text
     geo = geo.replace(" ", "_")
     name = f"{keys}_{geo}"
-    with open(f"/config/{name}.txt", "w", encoding='utf-8') as f:
+    with open(f"config/{name}.txt", "w", encoding='utf-8') as f:
         f.write("[Avito]\n")
         f.write(f"url = {url}\n")
         f.write("num_ads = 3\n")
@@ -60,6 +56,4 @@ def get_geo(message):
         f.write(f"geo = {geo}\n")
     bot.send_message(message.chat.id, "Запрос успешно создан!")
 
-
-# Запускаем бота
 bot.polling()

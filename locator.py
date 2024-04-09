@@ -1,6 +1,5 @@
 from selenium.webdriver.common.by import By
 
-
 class LocatorAvito:
     """Все необходимые селекторы"""
     NEXT_BTN = (By.CSS_SELECTOR, "[data-marker*='pagination-button/next']")
