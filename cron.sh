@@ -2,6 +2,4 @@
 
 ./stop.sh
 
-python3 get_response.py &
-
-./loop.sh
+nohup python3 get_response.py ; ./loop.sh
