@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Проверяем, существует ли строка в crontab
+if crontab -l | grep "0 0 * * 7 /home/kirill/Desktop/build_parse/cron.sh" > /dev/null; then
+  # Если строка существует, удаляем ее
+  crontab -l | grep -v "0 0 * * 7 /home/kirill/Desktop/build_parse/cron.sh" | crontab -
+fi
+
+
 # Получение PID процессов
 scr_pid=$(ps aux | grep "/bin/bash ./loop.sh"| grep -v grep| awk '{print $2}')
 g_pid=$(ps aux | grep "/google/chrome/chrome" | grep -v 'grep' | awk '{print $2}')

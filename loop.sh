@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Проверяем, существует ли уже строка в crontab
+if ! crontab -l | grep "0 0 * * 7 /home/kirill/Desktop/build_parse/cron.sh" > /dev/null; then
+  # Если строки нет, добавляем ее в crontab
+  (crontab -l 2>/dev/null; echo "0 0 * * 7 /home/kirill/Desktop/build_parse/cron.sh") | crontab -
+fi
+
 nohup python3 config/tgbot.py &
 
 while true; do

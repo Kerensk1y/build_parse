@@ -1,8 +1,0 @@
-[Avito]
-url = https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki-ASgBAgICAkSYC8SfAZoL3J8B?bt=1&q=%%D1%%83%%D1%%81%%D0%%BB%%D1%%83%%D0%%B3%%D0%%B8
-num_ads = 3
-freq = 1
-keys = манипулятор
-max_price = 100000
-min_price = 0
-geo = Москва
