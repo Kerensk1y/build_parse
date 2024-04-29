@@ -1,3 +1,5 @@
+import os
+
 def file_gen():
     items = ["Асфальтоукладчик", "Каток дорожный", "Бульдозер", "Грейдер", "Экскаватор", "Погрузчик", "Автокран"]
 
@@ -10,7 +12,11 @@ def file_gen():
     max_price = 100000
     min_price = 0
     geo = Москва
+    Type = ДСМ
     """
+
+    dir_path = 'config_files'
+    os.makedirs(dir_path)
 
     # Создание файлов
     for index, item in enumerate(items):
@@ -20,3 +26,5 @@ def file_gen():
             file.write(content)
 
         print(f"Файл {filename} успешно создан.")
+
+file_gen()

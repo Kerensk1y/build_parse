@@ -3,8 +3,9 @@ import random
 import time
 import csv
 import re
-from notifiers.logging import NotificationHandler
+# from notifiers.logging import NotificationHandler
 from seleniumbase import SB
+import configparser
 from loguru import logger
 from locator import LocatorAvito
 from avitoDB import insert
@@ -22,6 +23,7 @@ class AvitoParse:
                  max_price: int = 0,
                  min_price: int = 0,
                  geo: str = None,
+                 Type: str = None,
                  debug_mode: int = 0
 
                  ):
@@ -34,6 +36,7 @@ class AvitoParse:
         self.max_price = int(max_price)
         self.min_price = int(min_price)
         self.geo = geo
+        self.Type = Type
         self.debug_mode = debug_mode
 
     def __get_url(self):
@@ -213,7 +216,8 @@ class AvitoParse:
         data.get("name"),
         data.get("price"),
         data.get("description"),
-        data.get("url"))
+        data.get("url"),
+        self.Type)
         insert(db_data)
 
         """сохраняет просмотренные объявления"""
@@ -282,8 +286,6 @@ class AvitoParse:
 
 
 if __name__ == '__main__':
-    """Здесь заменить данные на свои"""
-    import configparser
 
     config = configparser.ConfigParser()  # создаём объекта парсера
     config.read("settings.ini")  # читаем конфиг
@@ -302,7 +304,7 @@ if __name__ == '__main__':
     max_price = config["Avito"].get("MAX_PRICE", "0") or "0"
     min_price = config["Avito"].get("MIN_PRICE", "0") or "0"
     geo = config["Avito"].get("GEO", "") or ""
-
+    Type = config['Avito']['Type']
     while True:
         try:
             AvitoParse(
@@ -311,7 +313,8 @@ if __name__ == '__main__':
                 keysword_list=keys.split(","),
                 max_price=int(max_price),
                 min_price=int(min_price),
-                geo=geo
+                geo=geo,
+                Type=Type
             ).parse()
             logger.info("Пауза")
             time.sleep(int(freq) * 60)

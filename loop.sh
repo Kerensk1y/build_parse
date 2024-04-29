@@ -9,7 +9,7 @@ fi
 nohup python3 config/tgbot.py &
 
 while true; do
-    for file in $(ls -t config/*.txt); do
+    for file in $(ls -t config/*.ini); do
         # Запуск python скрипта в фоне и сохранение его PID
         echo $file
         nohup python3 parser_cls.py &
@@ -27,6 +27,6 @@ while true; do
         fi
 
         # Копирование содержимого конфигурационного файла в settings.ini
-        cat "$file.txt" > "settings.ini"
+        cat "$file.ini" > "settings.ini"
     done
 done
