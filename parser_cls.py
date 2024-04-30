@@ -9,6 +9,9 @@ import configparser
 from loguru import logger
 from locator import LocatorAvito
 from avitoDB import insert
+from openpyxl import load_workbook
+from rights import *
+from table_update import *
 
 class AvitoParse:
     #Парсинг  товаров на avito.ru
@@ -22,6 +25,7 @@ class AvitoParse:
                  min_price: int = 0,
                  geo: str = None,
                  Type: str = None,
+                 objName: str = None,
                  debug_mode: int = 0
                  ):
         self.url = url
@@ -34,6 +38,7 @@ class AvitoParse:
         self.min_price = int(min_price)
         self.geo = geo
         self.Type = Type
+        self.objName = objName
         self.debug_mode = debug_mode
 
     def __get_url(self):
@@ -47,13 +52,13 @@ class AvitoParse:
         self.driver.switch_to_window(window=0)
 
     def __paginator(self):
-        #Кнопка далее
+        # Кнопка далее
         logger.info('Страница успешно загружена. Просматриваю объявления')
         self.__create_file_csv()
         while self.count > 0:
             self.__parse_page()
             time.sleep(random.randint(5, 7))
-            #Проверяем есть ли кнопка далее
+            # Проверяем есть ли кнопка далее
             if self.driver.find_elements(LocatorAvito.NEXT_BTN[1], by="css selector"):
                 self.driver.find_element(LocatorAvito.NEXT_BTN[1], by="css selector").click()
                 self.count -= 1
@@ -64,9 +69,8 @@ class AvitoParse:
 
     @logger.catch
     def __parse_page(self):
-        #Парсит открытую страницу
-
-        #Ограничение количества просмотренных объявлений
+        # Парсит открытую страницу
+        # Ограничение количества просмотренных объявлений
         if os.path.isfile('viewed.txt'):
             with open('viewed.txt', 'r') as file:
                 self.viewed_list = list(map(str.rstrip, file.readlines()))
@@ -108,33 +112,33 @@ class AvitoParse:
                 continue
             self.viewed_list.append(ads_id)
 
-            #Определяем нужно ли нам учитывать ключевые слова
+            # Определяем нужно ли нам учитывать ключевые слова
             if self.keys_word != ['']:
                 if any([item.lower() in (description.lower() + name.lower()) for item in self.keys_word]) \
                         and \
                         self.min_price <= int(
                     price) <= self.max_price:
                     self.data.append(self.__parse_full_page(url, data))
-                    #Проверка адреса если нужно
+                    # Проверка адреса если нужно
                     if self.geo and self.geo.lower() not in self.data[-1].get("geo", self.geo.lower()):
                         continue
-                    #Отправляем в телеграм
+                    # Отправляем в телеграм
                     self.__pretty_log(data=data)
                     self.__save_data(data=data)
             elif self.min_price <= int(price) <= self.max_price:
 
                 self.data.append(self.__parse_full_page(url, data))
-                #Проверка адреса если нужно
+                # Проверка адреса если нужно
                 if self.geo and self.geo.lower() not in self.data[-1].get("geo", self.geo.lower()):
                     continue
-                #Отправляем в телеграм
+                # Отправляем в телеграм
                 self.__pretty_log(data=data)
                 self.__save_data(data=data)
             else:
                 continue
 
     def __pretty_log(self, data):
-        #Красивый вывод
+        # Красивый вывод
         logger.success(
             f'\n{data.get("name", "-")}\n'
             f'Цена: {data.get("price", "-")}\n'
@@ -145,11 +149,11 @@ class AvitoParse:
             f'Ссылка: {data.get("url", "-")}\n')
 
     def __parse_full_page(self, url: str, data: dict) -> dict:
-        #Парсит для доп. информации открытое объявление на отдельной вкладке
+        # Парсит для доп. информации открытое объявление на отдельной вкладке
         self.driver.switch_to_window(window=1)
         self.driver.get(url)
-
-        #Если не дождались загрузки
+ 
+        # Если не дождались загрузки
         try:
             self.driver.wait_for_element(LocatorAvito.TOTAL_VIEWS[1], by="css selector", timeout=10)
         except Exception:
@@ -161,40 +165,40 @@ class AvitoParse:
             logger.debug("Не дождался загрузки страницы")
             return data
 
-        #Гео
+        # Гео
         if self.geo and self.driver.find_elements(LocatorAvito.GEO[1], by="css selector"):
             geo = self.driver.find_element(LocatorAvito.GEO[1], by="css selector").text
             data["geo"] = geo.lower()
 
-        #Количество просмотров
+        # Количество просмотров
         if self.driver.find_elements(LocatorAvito.TOTAL_VIEWS[1], by="css selector"):
             total_views = self.driver.find_element(LocatorAvito.TOTAL_VIEWS[1]).text.split()[0]
             data["views"] = total_views
 
-        #Дата публикации
+        # Дата публикации
         if self.driver.find_elements(LocatorAvito.DATE_PUBLIC[1], by="css selector"):
             date_public = self.driver.find_element(LocatorAvito.DATE_PUBLIC[1], by="css selector").text
             if "· " in date_public:
                 date_public = date_public.replace("· ", '')
             data["date_public"] = date_public
 
-        #Имя продавца
+        # Имя продавца
         if self.driver.find_elements(LocatorAvito.SELLER_NAME[1], by="css selector"):
             seller_name = self.driver.find_element(LocatorAvito.SELLER_NAME[1], by="css selector").text
             data["seller_name"] = seller_name
 
-        #Возвращается на вкладку №1
+        # Возвращается на вкладку №1
         self.driver.switch_to_window(window=0)
         return data
 
     def is_viewed(self, ads_id: str) -> bool:
-        #Проверяет, смотрели мы это или нет
+        # Проверяет, смотрели мы это или нет
         if ads_id in self.viewed_list:
             return True
         return False
 
     def __save_data(self, data: dict):
-        #Сохраняет результат в файл keyword*.csv
+        # Сохраняет результат в файл keyword*.csv
         with open(f"result/{self.title_file}.csv", mode="a", newline='', encoding='utf-8', errors='ignore') as file:
             writer = csv.writer(file)
             writer.writerow([
@@ -214,10 +218,26 @@ class AvitoParse:
         data.get("price"),
         data.get("description"),
         data.get("url"),
-        self.Type)
+        self.Type,
+        self.objName)
         insert(db_data)
 
-        """сохраняет просмотренные объявления"""
+        fn = 'Таблица ДСМ и ДСТ.xlsx'
+        wb = load_workbook(fn)
+        if self.objName not in wb.sheetnames:
+            ws = wb.createsheet(title=self.objName)
+            for row in db_data:
+                ws.append(row)
+                wb.save(fn)
+                wb.close()
+        elif self.objName in wb.sheetnames:
+            ws = wb[self.objName]
+            ws.append(db_data)
+            wb.save(fn)
+            wb.close()
+        main(db_data)
+
+        # сохраняет просмотренные объявления
         with open('viewed.txt', 'w') as file:
             for item in set(self.viewed_list):
                 file.write("%s\n" % item)
@@ -241,8 +261,7 @@ class AvitoParse:
 
     @logger.catch
     def __create_file_csv(self):
-        """Создает файл и прописывает названия если нужно"""
-
+        # Создает файл и прописывает названия если нужно
         if self.__is_csv_empty:
             with open(f"result/{self.title_file}.csv", 'a', encoding='utf-8', errors='ignore') as file:
                 writer = csv.writer(file)
@@ -302,6 +321,7 @@ if __name__ == '__main__':
     min_price = config["Avito"].get("MIN_PRICE", "0") or "0"
     geo = config["Avito"].get("GEO", "") or ""
     Type = config['Avito']['Type']
+    objName = config["Avito"]['objName']
     while True:
         try:
             AvitoParse(
@@ -311,7 +331,8 @@ if __name__ == '__main__':
                 max_price=int(max_price),
                 min_price=int(min_price),
                 geo=geo,
-                Type=Type
+                Type=Type,
+                objName=objName
             ).parse()
             logger.info("Пауза")
             time.sleep(int(freq) * 60)

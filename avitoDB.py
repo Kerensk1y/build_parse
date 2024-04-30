@@ -12,6 +12,7 @@ def create_table():
         description TEXT,
         url TEXT NOT NULL UNIQUE,
 	    Type CHAR(3) NOT NULL
+        objName TEXT
     );"""
     cur.executescript(sql)
     cur.close()
@@ -23,8 +24,8 @@ def insert(data):
     cur = con.cursor()
 
     sql = """
-    INSERT INTO Avito (keyword, region, title, price, description, url, Type)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO Avito (keyword, region, title, price, description, url, Type, objName)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(url) DO UPDATE SET
         keyword = EXCLUDED.keyword,
         region = EXCLUDED.region,
