@@ -11,7 +11,7 @@ def create_table():
         price INTEGER,
         description TEXT,
         url TEXT NOT NULL UNIQUE,
-	    Type CHAR(3) NOT NULL
+	Type CHAR(3) NOT NULL,
         objName TEXT
     );"""
     cur.executescript(sql)
